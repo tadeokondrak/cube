@@ -1,0 +1,19 @@
+[package]
+name = "bld_tadeo_ca"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+console_error_panic_hook = "0.1.7"
+wasm-bindgen = "0.2"
+cube = { path = "../cube" }
+cube_bld = { path = "../cube_bld" }
+cube_notation = { path = "../cube_notation" }
+
+[dev-dependencies]
+expect-test = "1.4.1"
+
+[lib]
+crate-type = ["cdylib"]

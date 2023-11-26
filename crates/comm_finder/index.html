@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>comms.tadeo.ca</title>
+    <script src="https://unpkg.com/mithril/mithril.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+        crossorigin="anonymous"></script>
+    <style>
+        body {
+            font-family: sans-serif;
+        }
+
+        .comms-inner-table> :nth-child(even) {
+            background-color: var(--bs-table-striped-bg);
+        }
+    </style>
+    <script>
+        // taken from https://stackoverflow.com/a/75065536
+        function updateTheme() {
+            const colorMode = window.matchMedia("(prefers-color-scheme: dark)").matches ?
+                "dark" :
+                "light";
+            document.querySelector("html").setAttribute("data-bs-theme", colorMode);
+        }
+        updateTheme()
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', updateTheme)
+    </script>
+</head>
+
+<body>
+    <div class="container-xl">
+        <div>
+            <div class="mb-2 mt-2">
+                <label for="lettering" class="form-label">Lettering </label>
+                <input class="form-control" type="text" id="lettering" name="lettering" value="ABCDEFGHIJKLMNOPQRSTUVWX"
+                    placeholder="ABCDEFGHIJKLMNOPQRSTUVWX">
+            </div>
+            <div class="mb-2">
+                <label for="piecetype" class="form-label">Piece type</label>
+                <select class="form-control" id="piecetype" size="9">
+                    <option value="Corners" selected>Corners</option>
+                    <option value="Edges">Edges</option>
+                    <option value="LeftWings">Left wings (e.g. DFr buffer)</option>
+                    <option value="RightWings">Right wings (e.g. UFr buffer)</option>
+                    <option value="Midges">Midges</option>
+                    <option value="XCenters">X-centers</option>
+                    <option value="TCenters">T-centers</option>
+                    <option value="LeftObliques">Left obliques (e.g. Uf3l buffer)</option>
+                    <option value="RightObliques">Right obliques (e.g. Uf3r buffer)</option>
+                </select>
+            </div>
+
+            <div class="mb-2">
+                <label for="search" class="form-label">Search</label>
+                <input class="form-control" type="text" id="search" name="search" autofocus maxlength="3"
+                    placeholder="CAB">
+            </div>
+        </div>
+
+        <div id="output"></div>
+    </div>
+
+    <script src="main.js?v3"></script>
+</body>
+
+</html>

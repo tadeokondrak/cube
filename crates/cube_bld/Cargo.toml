@@ -1,0 +1,10 @@
+[package]
+name = "cube_bld"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+cube = { path = "../cube" }
+
+[dev-dependencies]
+expect-test = "1.4.1"

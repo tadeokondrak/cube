@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>bld.tadeo.ca/mbld</title>
+    <script src="mbld.js" type="module"></script>
+    <style>
+        body {
+            font-family: sans-serif;
+        }
+    </style>
+</head>
+
+<body>
+    <div style="display: flex; flex-direction: column; max-width: 500px; gap: 4px; padding-bottom: 1em;">
+        N: <input type="number" id="n" value="3">
+        Lettering: <input type="text" id="lettering" name="lettering" value="ABCDEFGHIJKLMNOPQRSTUVWX">
+        Edge buffer:
+        <select id="edgebuffer">
+            <option value="0">UB</option>
+            <option value="1">UR</option>
+            <option value="2" selected>UF</option>
+            <option value="3">UL</option>
+            <option value="4">LU</option>
+            <option value="5">LF</option>
+            <option value="6">LD</option>
+            <option value="7">LB</option>
+            <option value="8">FU</option>
+            <option value="9">FR</option>
+            <option value="10">FD</option>
+            <option value="11">FL</option>
+            <option value="12">RU</option>
+            <option value="13">RB</option>
+            <option value="14">RD</option>
+            <option value="15">RF</option>
+            <option value="16">BU</option>
+            <option value="17">BL</option>
+            <option value="18">BD</option>
+            <option value="19">BR</option>
+            <option value="20">DF</option>
+            <option value="21">DR</option>
+            <option value="22">DB</option>
+            <option value="23">DL</option>
+        </select>
+        Corner buffer:
+        <select id="cornerbuffer">
+            <option value="0">UBL</option>
+            <option value="1">UBR</option>
+            <option value="2" selected>UFR</option>
+            <option value="3">UFL</option>
+            <option value="4">LUB</option>
+            <option value="5">LUF</option>
+            <option value="6">LDF</option>
+            <option value="7">LDB</option>
+            <option value="8">FUL</option>
+            <option value="9">FUR</option>
+            <option value="10">FDR</option>
+            <option value="11">FDL</option>
+            <option value="12">RUF</option>
+            <option value="13">RUB</option>
+            <option value="14">RDB</option>
+            <option value="15">RDF</option>
+            <option value="16">BUR</option>
+            <option value="17">BUL</option>
+            <option value="18">BDL</option>
+            <option value="19">BDR</option>
+            <option value="20">DFL</option>
+            <option value="21">DFR</option>
+            <option value="22">DBR</option>
+            <option value="23">DBL</option>
+        </select>
+        T-center buffer:
+        <select id="tcenterbuffer">
+            <option value="0">Ub</option>
+            <option value="1">Ur</option>
+            <option value="2" selected>Uf</option>
+            <option value="3">Ul</option>
+            <option value="4">Lu</option>
+            <option value="5">Lf</option>
+            <option value="6">Ld</option>
+            <option value="7">Lb</option>
+            <option value="8">Fu</option>
+            <option value="9">Fr</option>
+            <option value="10">Fd</option>
+            <option value="11">Fl</option>
+            <option value="12">Ru</option>
+            <option value="13">Rb</option>
+            <option value="14">Rd</option>
+            <option value="15">Rf</option>
+            <option value="16">Bu</option>
+            <option value="17">Bl</option>
+            <option value="18">Bd</option>
+            <option value="19">Br</option>
+            <option value="20">Df</option>
+            <option value="21">Dr</option>
+            <option value="22">Db</option>
+            <option value="23">Dl</option>
+        </select>
+        Left oblique buffer:
+        <select id="leftobliquebuffer">
+            <option value="0">Ub</option>
+            <option value="1">Ur</option>
+            <option value="2" selected>Uf</option>
+            <option value="3">Ul</option>
+            <option value="4">Lu</option>
+            <option value="5">Lf</option>
+            <option value="6">Ld</option>
+            <option value="7">Lb</option>
+            <option value="8">Fu</option>
+            <option value="9">Fr</option>
+            <option value="10">Fd</option>
+            <option value="11">Fl</option>
+            <option value="12">Ru</option>
+            <option value="13">Rb</option>
+            <option value="14">Rd</option>
+            <option value="15">Rf</option>
+            <option value="16">Bu</option>
+            <option value="17">Bl</option>
+            <option value="18">Bd</option>
+            <option value="19">Br</option>
+            <option value="20">Df</option>
+            <option value="21">Dr</option>
+            <option value="22">Db</option>
+            <option value="23">Dl</option>
+        </select>
+        Right oblique buffer:
+        <select id="rightobliquebuffer">
+            <option value="0">Ub</option>
+            <option value="1">Ur</option>
+            <option value="2" selected>Uf</option>
+            <option value="3">Ul</option>
+            <option value="4">Lu</option>
+            <option value="5">Lf</option>
+            <option value="6">Ld</option>
+            <option value="7">Lb</option>
+            <option value="8">Fu</option>
+            <option value="9">Fr</option>
+            <option value="10">Fd</option>
+            <option value="11">Fl</option>
+            <option value="12">Ru</option>
+            <option value="13">Rb</option>
+            <option value="14">Rd</option>
+            <option value="15">Rf</option>
+            <option value="16">Bu</option>
+            <option value="17">Bl</option>
+            <option value="18">Bd</option>
+            <option value="19">Br</option>
+            <option value="20">Df</option>
+            <option value="21">Dr</option>
+            <option value="22">Db</option>
+            <option value="23">Dl</option>
+        </select>
+        X-center buffer:
+        <select id="xcenterbuffer">
+            <option value="0">Ubl</option>
+            <option value="1">Ubr</option>
+            <option value="2" selected>Ufr</option>
+            <option value="3">Ufl</option>
+            <option value="4">Lub</option>
+            <option value="5">Luf</option>
+            <option value="6">Ldf</option>
+            <option value="7">Ldb</option>
+            <option value="8">Ful</option>
+            <option value="9">Fur</option>
+            <option value="10">Fdr</option>
+            <option value="11">Fdl</option>
+            <option value="12">Ruf</option>
+            <option value="13">Rub</option>
+            <option value="14">Rdb</option>
+            <option value="15">Rdf</option>
+            <option value="16">Bur</option>
+            <option value="17">Bul</option>
+            <option value="18">Bdl</option>
+            <option value="19">Bdr</option>
+            <option value="20">Dfl</option>
+            <option value="21">Dfr</option>
+            <option value="22">Dbr</option>
+            <option value="23">Dbl</option>
+        </select>
+        Wing buffer:
+        <select id="wingbuffer">
+            <option value="0">UBr</option>
+            <option value="1">BUr</option>
+            <option value="2">URf</option>
+            <option value="3">RUf</option>
+            <option value="4">UFl</option>
+            <option value="5">FUl</option>
+            <option value="6">ULb</option>
+            <option value="7">LUb</option>
+            <option value="8">LUf</option>
+            <option value="9">ULf</option>
+            <option value="10">LFd</option>
+            <option value="11">FLd</option>
+            <option value="12">LDb</option>
+            <option value="13">DLb</option>
+            <option value="14">LBu</option>
+            <option value="15">BLu</option>
+            <option value="16">FUr</option>
+            <option value="17" selected>UFr</option>
+            <option value="18">FRd</option>
+            <option value="19">RFd</option>
+            <option value="20">FDl</option>
+            <option value="21">DFl</option>
+            <option value="22">FLu</option>
+            <option value="23">LFu</option>
+            <option value="24">RUb</option>
+            <option value="25">URb</option>
+            <option value="26">RBd</option>
+            <option value="27">BRd</option>
+            <option value="28">RDf</option>
+            <option value="29">DRf</option>
+            <option value="30">RFu</option>
+            <option value="31">FRu</option>
+            <option value="32">BUl</option>
+            <option value="33">UBl</option>
+            <option value="34">BLd</option>
+            <option value="35">LBd</option>
+            <option value="36">BDr</option>
+            <option value="37">DBr</option>
+            <option value="38">BRu</option>
+            <option value="39">RBu</option>
+            <option value="40">DFr</option>
+            <option value="41">FDr</option>
+            <option value="42">DRb</option>
+            <option value="43">RDb</option>
+            <option value="44">DBl</option>
+            <option value="45">BDl</option>
+            <option value="46">DLf</option>
+            <option value="47">LDf</option>
+        </select>
+        Scrambles: <textarea id="scrambles" name="scrambles" rows="8"></textarea>
+        Memo: <textarea id="memo" name="memo" rows="8"></textarea>
+    </div>
+    <pre id="analysis"></pre>
+</body>
+
+</html>

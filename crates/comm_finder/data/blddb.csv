@@ -1,0 +1,5 @@
+key,url
+corner,https://blddb.net/assets/json/cornerAlgToNightmare.json
+edge,https://blddb.net/assets/json/edgeAlgToNightmare.json
+parity,https://blddb.net/assets/json/parityAlgToNightmare.json
+twoFlips,https://blddb.net/assets/json/twoFlipsAlgToNightmare.json
