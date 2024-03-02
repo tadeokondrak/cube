@@ -1,3 +1,6 @@
+// This is not my code!
+// Copyright (C) 2022-2024 Zixing Wang
+// This is taken from https://github.com/nbwzx/blddb/blob/main/assets/js/commutator.js and licensed under the GPL
 var MAX_INT = 4294967295;
 var orderInit = 4,
   outerBracketInit = false,
