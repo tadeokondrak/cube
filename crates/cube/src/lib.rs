@@ -320,22 +320,24 @@ impl Cube {
             },
             layers: (0..n_layers(n))
                 .map(|i| {
-                    let obliques = (0..i).map(|_| ObliquesPair {
-                        left: Obliques {
-                            permutation: shuffled(
-                                &mut rand,
-                                EdgeSticker::SOLVED,
-                                left_oblique_parity,
-                            ),
-                        },
-                        right: Obliques {
-                            permutation: shuffled(
-                                &mut rand,
-                                EdgeSticker::SOLVED,
-                                right_oblique_parity,
-                            ),
-                        },
-                    }).collect();
+                    let obliques = (0..i)
+                        .map(|_| ObliquesPair {
+                            left: Obliques {
+                                permutation: shuffled(
+                                    &mut rand,
+                                    EdgeSticker::SOLVED,
+                                    left_oblique_parity,
+                                ),
+                            },
+                            right: Obliques {
+                                permutation: shuffled(
+                                    &mut rand,
+                                    EdgeSticker::SOLVED,
+                                    right_oblique_parity,
+                                ),
+                            },
+                        })
+                        .collect();
                     CubeLayer {
                         wings: Wings {
                             permutation: shuffled(&mut rand, EdgeSticker::SOLVED, wing_parity),

@@ -6,7 +6,7 @@ fn alg() {
     let mut cube = Cube::new_solved(3);
     apply_alg(&mut cube, "3Rw");
     expect!["UUU UUU UUU / LLL LLL LLL / FFF FFF FFF / RRR RRR RRR / BBB BBB BBB / DDD DDD DDD"]
-    .assert_eq(&format!("{cube:?}"));
+        .assert_eq(&format!("{cube:?}"));
 }
 
 #[test]

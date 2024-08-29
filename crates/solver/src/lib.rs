@@ -90,7 +90,11 @@ pub fn make_pruning_table() -> Vec<u8> {
                 }
             }
         }
-        eprintln!("{depth} {entries_filled}/{} {:?}", table.len(), start.elapsed());
+        eprintln!(
+            "{depth} {entries_filled}/{} {:?}",
+            table.len(),
+            start.elapsed()
+        );
         start = Instant::now();
         depth += 1;
     }

@@ -1,6 +1,6 @@
 use super::*;
-use std::fmt::Write;
 use expect_test::{expect, expect_file, Expect, ExpectFile};
+use std::fmt::Write;
 
 #[test]
 fn cube_new() {
@@ -18,29 +18,41 @@ impl Cube {
 #[test]
 fn cycle_corners() {
     let mut state = Cube::new_solved(3);
-    state.expect(expect!["UUU UUU UUU / LLL LLL LLL / FFF FFF FFF / RRR RRR RRR / BBB BBB BBB / DDD DDD DDD"]);
+    state.expect(expect![
+        "UUU UUU UUU / LLL LLL LLL / FFF FFF FFF / RRR RRR RRR / BBB BBB BBB / DDD DDD DDD"
+    ]);
 
     state.corners.cycle(&CornerSticker::face_cycle(Face::U), 1);
 
-    state.expect(expect!["UUU UUU UUU / FLF LLL LLL / RFR FFF FFF / BRB RRR RRR / LBL BBB BBB / DDD DDD DDD"]);
+    state.expect(expect![
+        "UUU UUU UUU / FLF LLL LLL / RFR FFF FFF / BRB RRR RRR / LBL BBB BBB / DDD DDD DDD"
+    ]);
 
     state.corners.cycle(&CornerSticker::face_cycle(Face::R), 1);
 
-    state.expect(expect!["UUR UUU UUF / FLF LLL LLL / RFD FFF FFD / RRB RRR RRB / UBL BBB UBB / DDB DDD DDL"]);
+    state.expect(expect![
+        "UUR UUU UUF / FLF LLL LLL / RFD FFF FFD / RRB RRR RRB / UBL BBB UBB / DDB DDD DDL"
+    ]);
 }
 
 #[test]
 fn cycle_edges() {
     let mut state = Cube::new_solved(3);
-    state.expect(expect!["UUU UUU UUU / LLL LLL LLL / FFF FFF FFF / RRR RRR RRR / BBB BBB BBB / DDD DDD DDD"]);
+    state.expect(expect![
+        "UUU UUU UUU / LLL LLL LLL / FFF FFF FFF / RRR RRR RRR / BBB BBB BBB / DDD DDD DDD"
+    ]);
 
     state.edges.cycle(&EdgeSticker::face_cycle(Face::U), 1);
 
-    state.expect(expect!["UUU UUU UUU / LFL LLL LLL / FRF FFF FFF / RBR RRR RRR / BLB BBB BBB / DDD DDD DDD"]);
+    state.expect(expect![
+        "UUU UUU UUU / LFL LLL LLL / FRF FFF FFF / RBR RRR RRR / BLB BBB BBB / DDD DDD DDD"
+    ]);
 
     state.edges.cycle(&EdgeSticker::face_cycle(Face::R), 1);
 
-    state.expect(expect!["UUU UUF UUU / LFL LLL LLL / FRF FFD FFF / RRR RRB RRR / BLB UBB BBB / DDD DDB DDD"]);
+    state.expect(expect![
+        "UUU UUF UUU / LFL LLL LLL / FRF FFD FFF / RRR RRB RRR / BLB UBB BBB / DDD DDB DDD"
+    ]);
 }
 
 #[test]
@@ -389,37 +401,58 @@ fn rotate_orientation() {
 fn slice_moves_3x3x3() {
     let mut state = Cube::new_solved(3);
     state.rotate_slice(Face::R, 0, 1);
-    state.expect(expect!["BUB BUB BUB / LLL LLL LLL / UFU UFU UFU / RRR RRR RRR / DBD DBD DBD / FDF FDF FDF"]);
+    state.expect(expect![
+        "BUB BUB BUB / LLL LLL LLL / UFU UFU UFU / RRR RRR RRR / DBD DBD DBD / FDF FDF FDF"
+    ]);
 
     let mut state = Cube::new_solved(3);
     state.rotate_slice(Face::U, 0, 1);
-    state.expect(expect!["UUU UUU UUU / BBB LLL BBB / LLL FFF LLL / FFF RRR FFF / RRR BBB RRR / DDD DDD DDD"]);
+    state.expect(expect![
+        "UUU UUU UUU / BBB LLL BBB / LLL FFF LLL / FFF RRR FFF / RRR BBB RRR / DDD DDD DDD"
+    ]);
 
     let mut state = Cube::new_solved(3);
     state.rotate_slice(Face::F, 0, 1);
-    state.expect(expect!["RRR UUU RRR / ULU ULU ULU / FFF FFF FFF / DRD DRD DRD / BBB BBB BBB / LLL DDD LLL"]);
+    state.expect(expect![
+        "RRR UUU RRR / ULU ULU ULU / FFF FFF FFF / DRD DRD DRD / BBB BBB BBB / LLL DDD LLL"
+    ]);
 }
 
 #[test]
 fn wide_moves_3x3x3() {
     let mut state = Cube::new_solved(3);
     state.rotate(Face::R, 0..2, 1);
-    state.expect(expect!["BUU BUU BUU / LLL LLL LLL / UFF UFF UFF / RRR RRR RRR / BBD BBD BBD / FDD FDD FDD"]);
+    state.expect(expect![
+        "BUU BUU BUU / LLL LLL LLL / UFF UFF UFF / RRR RRR RRR / BBD BBD BBD / FDD FDD FDD"
+    ]);
 
     let mut state = Cube::new_solved(3);
     state.rotate(Face::U, 0..2, 1);
-    state.expect(expect!["UUU UUU UUU / LLL LLL BBB / FFF FFF LLL / RRR RRR FFF / BBB BBB RRR / DDD DDD DDD"]);
+    state.expect(expect![
+        "UUU UUU UUU / LLL LLL BBB / FFF FFF LLL / RRR RRR FFF / BBB BBB RRR / DDD DDD DDD"
+    ]);
 
     let mut state = Cube::new_solved(3);
     state.rotate(Face::F, 0..2, 1);
-    state.expect(expect!["RRR UUU UUU / ULL ULL ULL / FFF FFF FFF / RRD RRD RRD / BBB BBB BBB / DDD DDD LLL"]);
+    state.expect(expect![
+        "RRR UUU UUU / ULL ULL ULL / FFF FFF FFF / RRD RRD RRD / BBB BBB BBB / DDD DDD LLL"
+    ]);
 }
 
 #[test]
 fn test_orientation_after_move() {
-    assert_eq!(orientation_after_move(5, EdgeSticker::Uf, Face::R, 0..3, 1), EdgeSticker::Fd);
-    assert_eq!(orientation_after_move(4, EdgeSticker::Uf, Face::R, 0..3, 1), EdgeSticker::Uf);
-    assert_eq!(orientation_after_move(4, EdgeSticker::Uf, Face::R, 0..2, 1), EdgeSticker::Uf);
+    assert_eq!(
+        orientation_after_move(5, EdgeSticker::Uf, Face::R, 0..3, 1),
+        EdgeSticker::Fd
+    );
+    assert_eq!(
+        orientation_after_move(4, EdgeSticker::Uf, Face::R, 0..3, 1),
+        EdgeSticker::Uf
+    );
+    assert_eq!(
+        orientation_after_move(4, EdgeSticker::Uf, Face::R, 0..2, 1),
+        EdgeSticker::Uf
+    );
 }
 
 #[test]
@@ -431,6 +464,7 @@ fn test_rotate_then_wide_move() {
     assert_eq!(cube.orientation, EdgeSticker::Ur);
     cube.rotate(Face::R, 0..2, 1); // Rw
     assert_eq!(cube.orientation, EdgeSticker::Rd);
-    cube.cube.expect(expect!["UUU UUU LLL / LLD LLD LLD / FFF FFF FFF / URR URR URR / BBB BBB BBB / RRR DDD DDD"]);
-
+    cube.cube.expect(expect![
+        "UUU UUU LLL / LLD LLD LLD / FFF FFF FFF / URR URR URR / BBB BBB BBB / RRR DDD DDD"
+    ]);
 }
