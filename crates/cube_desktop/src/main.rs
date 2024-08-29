@@ -8,12 +8,13 @@ use wgpu::{
     BindGroupLayoutEntry, BindingResource, BindingType, BufferBindingType, BufferDescriptor,
     BufferUsages, Color, CommandEncoderDescriptor, CompareFunction, DepthBiasState,
     DepthStencilState, DeviceDescriptor, Extent3d, Features, FragmentState, IndexFormat, Instance,
-    Limits, LoadOp, MultisampleState, Operations, PipelineLayoutDescriptor, PowerPreference,
-    PresentMode, PrimitiveState, RenderPassColorAttachment, RenderPassDepthStencilAttachment,
-    RenderPassDescriptor, RenderPipelineDescriptor, RequestAdapterOptions, ShaderStages,
-    StencilState, StoreOp, SurfaceConfiguration, TextureDescriptor, TextureDimension,
-    TextureFormat, TextureUsages, TextureViewDescriptor, VertexAttribute, VertexBufferLayout,
-    VertexFormat, VertexState, VertexStepMode,
+    Limits, LoadOp, MemoryHints, MultisampleState, Operations, PipelineCompilationOptions,
+    PipelineLayoutDescriptor, PowerPreference, PresentMode, PrimitiveState,
+    RenderPassColorAttachment, RenderPassDepthStencilAttachment, RenderPassDescriptor,
+    RenderPipelineDescriptor, RequestAdapterOptions, ShaderStages, StencilState, StoreOp,
+    SurfaceConfiguration, TextureDescriptor, TextureDimension, TextureFormat, TextureUsages,
+    TextureViewDescriptor, VertexAttribute, VertexBufferLayout, VertexFormat, VertexState,
+    VertexStepMode,
 };
 use winit::{
     dpi::{LogicalSize, Size},
@@ -32,7 +33,7 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
 
     let instance = Instance::default();
 
-    let surface = unsafe { instance.create_surface(&window).unwrap() };
+    let surface = instance.create_surface(&window).unwrap();
     let adapter = instance
         .request_adapter(&RequestAdapterOptions {
             power_preference: PowerPreference::None,
@@ -46,8 +47,10 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
         .request_device(
             &DeviceDescriptor {
                 label: None,
-                features: Features::empty(),
-                limits: Limits::downlevel_webgl2_defaults().using_resolution(adapter.limits()),
+                required_features: Features::empty(),
+                required_limits: Limits::downlevel_webgl2_defaults()
+                    .using_resolution(adapter.limits()),
+                memory_hints: MemoryHints::default(),
             },
             None,
         )
@@ -167,11 +170,13 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
                     }],
                 },
             ],
+            compilation_options: PipelineCompilationOptions::default(),
         },
         fragment: Some(FragmentState {
             module: &shader,
             entry_point: "fs_main",
             targets: &[Some(swapchain_format.into())],
+            compilation_options: PipelineCompilationOptions::default(),
         }),
         primitive: PrimitiveState::default(),
         depth_stencil: Some(DepthStencilState {
@@ -187,6 +192,7 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
             alpha_to_coverage_enabled: false,
         },
         multiview: None,
+        cache: None,
     });
 
     let mut config = SurfaceConfiguration {
@@ -197,6 +203,7 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
         present_mode: PresentMode::AutoVsync,
         alpha_mode: swapchain_capabilities.alpha_modes[0],
         view_formats: vec![],
+        desired_maximum_frame_latency: 2,
     };
 
     surface.configure(&device, &config);
