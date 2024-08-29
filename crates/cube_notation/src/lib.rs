@@ -390,7 +390,7 @@ impl Parser<'_> {
             }
             Token::LParen => {
                 self.bump(Token::LParen);
-                Some(self.grouped(Delimiter::Parens, "expected ']'")).transpose()
+                Some(self.grouped(Delimiter::Parens, "expected ')'")).transpose()
             }
             Token::LBrace => {
                 self.bump(Token::LBrace);
@@ -400,7 +400,7 @@ impl Parser<'_> {
             Token::RAngle => Err("unexpected '>'"),
             Token::RBracket => Err("unexpected ']'"),
             Token::RParen => Err("unexpected ')'"),
-            Token::RBrace => Err("unexpected ')'"),
+            Token::RBrace => Err("unexpected '}'"),
             Token::Comma => Err("unexpected ','"),
             Token::Colon => Err("unexpected ':'"),
             Token::Slash => Err("unexpected '/'"),
