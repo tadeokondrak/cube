@@ -1,5 +1,11 @@
+#![no_std]
+extern crate alloc;
+#[cfg(test)]
+extern crate std;
+
+use alloc::{format, string::String, vec, vec::Vec};
+use core::{cmp::Ordering, fmt::Debug, ops::Range};
 use oorandom::Rand32;
-use std::{cmp::Ordering, fmt::Debug, ops::Range};
 
 mod corners;
 mod edges;
@@ -626,8 +632,8 @@ impl Cube {
     }
 }
 
-impl std::fmt::Debug for Cube {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl core::fmt::Debug for Cube {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         for face_index in 0..6 {
             if face_index != 0 {
                 write!(f, " / ")?;
@@ -736,7 +742,7 @@ impl AnySticker {
             if x == 0 && y.unsigned_abs() == n / 2 || y == 0 && x.unsigned_abs() == n / 2 {
                 AnySticker::Edge(sticker)
             } else {
-                AnySticker::TCenter(std::cmp::max(x.abs(), y.abs()) as u16 - 1, sticker)
+                AnySticker::TCenter(core::cmp::max(x.abs(), y.abs()) as u16 - 1, sticker)
             }
         } else if x.abs() == y.abs() {
             let dir = match (x.cmp(&0), y.cmp(&0)) {
@@ -794,7 +800,7 @@ impl AnySticker {
                     | (Ordering::Less, Ordering::Less, Edge::Y) => Handedness::Left,
                 };
 
-                let layer = std::cmp::min(x.abs(), y.abs()) as u16 - 1;
+                let layer = core::cmp::min(x.abs(), y.abs()) as u16 - 1;
 
                 let edge_sticker = EdgeSticker::from_face_and_direction(face, dir);
 
@@ -806,8 +812,8 @@ impl AnySticker {
 
                 AnySticker::Wing(layer, wing_sticker)
             } else {
-                let layer = std::cmp::max(x.abs(), y.abs()) as u16 - 1;
-                let index = std::cmp::min(x.abs(), y.abs()) as u16 - 1;
+                let layer = core::cmp::max(x.abs(), y.abs()) as u16 - 1;
+                let index = core::cmp::min(x.abs(), y.abs()) as u16 - 1;
                 let at_x_edge = x.unsigned_abs() - 1 == layer;
                 let at_y_edge = y.unsigned_abs() - 1 == layer;
                 let edge = match (at_x_edge, at_y_edge) {

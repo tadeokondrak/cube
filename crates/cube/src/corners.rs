@@ -100,11 +100,20 @@ impl Corners {
                     s += 1;
                 }
             }
-            x = (x + s) * i;
+            // s is [0, i)
+            x += s;
+            // i is [1, 8)
+            x *= i;
         }
         x as u16
     }
 }
+
+/*
+
+ABCD [A B C D]
+
+*/
 
 const FACTORIAL_U16: [u16; 9] = [1, 1, 2, 6, 24, 120, 720, 5040, 40320];
 
@@ -348,7 +357,7 @@ impl CornerOrientation {
     }
 }
 
-impl std::ops::Add<CornerOrientation> for CornerOrientation {
+impl core::ops::Add<CornerOrientation> for CornerOrientation {
     type Output = CornerOrientation;
 
     fn add(self, rhs: CornerOrientation) -> CornerOrientation {
@@ -356,13 +365,13 @@ impl std::ops::Add<CornerOrientation> for CornerOrientation {
     }
 }
 
-impl std::ops::AddAssign<CornerOrientation> for CornerOrientation {
+impl core::ops::AddAssign<CornerOrientation> for CornerOrientation {
     fn add_assign(&mut self, rhs: CornerOrientation) {
         *self = *self + rhs;
     }
 }
 
-impl std::ops::Neg for CornerOrientation {
+impl core::ops::Neg for CornerOrientation {
     type Output = CornerOrientation;
 
     fn neg(self) -> CornerOrientation {
@@ -379,7 +388,8 @@ mod tests {
     use super::*;
     use crate::Cube;
 
-    use std::fmt::{Debug, Display};
+    use alloc::vec::Vec;
+    use core::fmt::{Debug, Display};
 
     #[test]
     fn orientation_coordinate() {
@@ -419,7 +429,7 @@ mod tests {
         }
 
         impl Display for Move {
-            fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+            fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
                 self.face.fmt(f)?;
                 match self.n {
                     1 => Ok(()),
@@ -431,7 +441,7 @@ mod tests {
         }
 
         impl Debug for Move {
-            fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+            fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
                 Display::fmt(&self, f)
             }
         }
@@ -510,7 +520,7 @@ mod tests {
         for i in 0.. {
             let mut moves = Vec::new();
             if go(&mut cube, &mut moves, i) {
-                eprintln!("EO in {i} moves: {moves:?}");
+                std::eprintln!("EO in {i} moves: {moves:?}");
                 break;
             }
         }

@@ -1,4 +1,4 @@
-use crate::{Cube, Face, RotatedCube};
+use crate::Face;
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub struct Edges {
@@ -46,35 +46,33 @@ impl Edges {
         self.cycle(&EdgeSticker::face_cycle(face), count);
     }
 
-    pub const MAX_ORIENTATION_COORDINATE: u16 = 2047; // 2 ** 11 - 1
+    pub const MAX_ORIENTATION_COORDINATE: u16 = (1 << 11) - 1;
 
     pub fn orientation_coordinate(&self) -> u16 {
-        self.orientation[0..11]
-            .iter()
-            .enumerate()
-            .map(|(i, eo)| eo.index() as u16 * 2u16.pow(i as u32))
-            .sum()
+        let mut bits = 0;
+        for i in 0..11 {
+            if self.orientation[i] == EdgeOrientation::Bad {
+                bits |= 1 << i;
+            }
+        }
+        bits
     }
 
     pub const MAX_PERMUTATION_COORDINATE: u32 = 479001599; // fact(12) - 1
 
     pub fn permutation_coordinate(&self) -> u32 {
-        self.permutation
-            .iter()
-            .copied()
-            .enumerate()
-            .skip(1)
-            .rev()
-            .fold(0, |coord, (i, permutation)| {
-                (coord
-                    + self.permutation[0..i - 1]
-                        .iter()
-                        .copied()
-                        .rev()
-                        .filter(|&other_permutation| other_permutation > permutation)
-                        .count() as u32)
-                    * i as u32
-            })
+        let mut bits = 0;
+        for i in (1..11).rev() {
+            let permutation = self.permutation[i];
+            bits += self.permutation[0..i - 1]
+                .iter()
+                .copied()
+                .rev()
+                .filter(|&other_permutation| other_permutation > permutation)
+                .count() as u32;
+            bits *= i as u32;
+        }
+        bits
     }
 
     pub fn are_solved(&self) -> bool {
@@ -227,7 +225,7 @@ impl EdgeOrientation {
     }
 }
 
-impl std::ops::Not for EdgeOrientation {
+impl core::ops::Not for EdgeOrientation {
     type Output = EdgeOrientation;
 
     fn not(self) -> EdgeOrientation {
@@ -244,7 +242,7 @@ impl EdgeOrientation {
     }
 }
 
-impl std::ops::BitXor for EdgeOrientation {
+impl core::ops::BitXor for EdgeOrientation {
     type Output = EdgeOrientation;
 
     fn bitxor(self, other: EdgeOrientation) -> EdgeOrientation {
@@ -256,7 +254,7 @@ impl std::ops::BitXor for EdgeOrientation {
     }
 }
 
-impl std::ops::BitXorAssign for EdgeOrientation {
+impl core::ops::BitXorAssign for EdgeOrientation {
     fn bitxor_assign(&mut self, rhs: Self) {
         *self = *self ^ rhs;
     }
@@ -377,38 +375,10 @@ impl EdgeSticker {
     }
 }
 
-#[allow(dead_code)]
-fn find_xyz_for(orientation: EdgeSticker) -> (u8, u8, u8) {
-    let mut all_orientations = Vec::new();
-    for x in 0..4 {
-        for y in 0..4 {
-            for z in 0..4 {
-                let mut cube = Cube::new_solved(3);
-                let mut cube = RotatedCube::new(&mut cube);
-                cube.rotate(Face::R, 0..3, x);
-                cube.rotate(Face::U, 0..3, y);
-                cube.rotate(Face::F, 0..3, z);
-                if orientation == cube.orientation {
-                    all_orientations.push((x, y, z));
-                }
-            }
-        }
-    }
-    all_orientations.sort_by_key(|&(x, y, z)| {
-        (
-            [x, y, z].into_iter().filter(|&x| x != 0).count(),
-            x != 0,
-            y != 0,
-            z != 0,
-        )
-    });
-    eprintln!("EdgeSticker::{orientation:?} => {:?},", all_orientations[0]);
-    all_orientations[0]
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::{Cube, RotatedCube};
 
     #[test]
     fn orientation_coordinate() {
