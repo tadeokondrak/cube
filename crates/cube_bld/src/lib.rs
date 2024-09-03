@@ -1,11 +1,14 @@
+#![no_std]
+extern crate alloc;
+#[cfg(test)]
+extern crate std;
+
+use alloc::collections::BTreeSet as Set;
+use alloc::vec::Vec;
+use core::{fmt::Debug, hash::Hash};
 use cube::{
     CornerOrientation, CornerPermutation, CornerSticker, Corners, EdgeOrientation, EdgePermutation,
     EdgeSticker, Edges, Face, Handedness, Obliques, TCenters, WingSticker, Wings, XCenters,
-};
-use std::{
-    collections::HashSet,
-    fmt::Debug,
-    hash::{BuildHasher, Hash, RandomState},
 };
 
 #[cfg(test)]
@@ -239,7 +242,7 @@ impl Orientation for () {
 }
 
 fn find_unsolved_piece<P: Pieces>(
-    solved_pieces: &HashSet<P::Permutation>,
+    solved_pieces: &Set<P::Permutation>,
     exclude: &[P::Permutation],
 ) -> Option<P::Sticker> {
     P::Permutation::SOLVED
@@ -249,33 +252,8 @@ fn find_unsolved_piece<P: Pieces>(
         .map(|sticker| P::sticker(sticker, P::Orientation::GOOD))
 }
 
-#[allow(dead_code)]
-fn find_unsolved_piece_randomly<P: Pieces>(
-    solved_pieces: &HashSet<P::Permutation>,
-    exclude: &[P::Permutation],
-) -> Option<P::Sticker> {
-    let candidates: Vec<_> = P::Permutation::SOLVED
-        .iter()
-        .copied()
-        .filter(|&piece| !solved_pieces.contains(&piece) && !exclude.contains(&piece))
-        .collect();
-
-    if candidates.is_empty() {
-        return None;
-    }
-
-    let seed = RandomState::new().hash_one(0);
-    let seed2 = RandomState::new().hash_one(0);
-
-    let piece = candidates[seed as usize % candidates.len()];
-    Some(P::sticker(
-        piece,
-        P::Orientation::from_index(seed2 as usize % P::Orientation::N),
-    ))
-}
-
 fn find_unsolved_piece_on_face<P: Pieces>(
-    solved_pieces: &HashSet<P::Permutation>,
+    solved_pieces: &Set<P::Permutation>,
     face: Face,
     exclude: &[P::Permutation],
 ) -> Option<P::Sticker> {
@@ -285,33 +263,8 @@ fn find_unsolved_piece_on_face<P: Pieces>(
     })
 }
 
-#[allow(dead_code)]
-fn find_unsolved_piece_on_face_randomly<P: Pieces>(
-    solved_pieces: &HashSet<P::Permutation>,
-    face: Face,
-    exclude: &[P::Permutation],
-) -> Option<P::Sticker> {
-    let candidates: Vec<_> = P::Sticker::on_face(face)
-        .iter()
-        .copied()
-        .filter(|&piece| {
-            !solved_pieces.contains(&P::sticker_permutation(piece))
-                && !exclude.contains(&P::sticker_permutation(piece))
-        })
-        .collect();
-
-    if candidates.is_empty() {
-        return None;
-    }
-
-    let seed = RandomState::new().hash_one(0);
-
-    let piece = candidates[seed as usize % candidates.len()];
-    Some(piece)
-}
-
 pub fn memo<P: Pieces>(pieces: &P, buffer: P::Sticker) -> Memo<P> {
-    let mut solved_pieces: HashSet<P::Permutation> = HashSet::new();
+    let mut solved_pieces: Set<P::Permutation> = Set::new();
     let mut twists = Vec::new();
 
     // Solve twists
@@ -490,7 +443,7 @@ impl Pieces for Obliques {
 }
 
 pub fn memo_centers<P: Pieces>(pieces: &P, buffer: P::Sticker) -> Memo<P> {
-    let mut solved_pieces = HashSet::new();
+    let mut solved_pieces = Set::new();
     let twists = Vec::new();
 
     for &piece in P::Sticker::SOLVED {
@@ -505,7 +458,7 @@ pub fn memo_centers<P: Pieces>(pieces: &P, buffer: P::Sticker) -> Memo<P> {
 
     loop {
         let mut new_cycle_end = None;
-        let mut new_solved_pieces = HashSet::new();
+        let mut new_solved_pieces = Set::new();
 
         let first_target = {
             match zeroth {
