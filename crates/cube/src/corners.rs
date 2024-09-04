@@ -1,5 +1,7 @@
 use crate::Face;
 
+pub mod fixed;
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Corners {
     pub permutation: [CornerPermutation; 8],
@@ -100,20 +102,12 @@ impl Corners {
                     s += 1;
                 }
             }
-            // s is [0, i)
             x += s;
-            // i is [1, 8)
             x *= i;
         }
         x as u16
     }
 }
-
-/*
-
-ABCD [A B C D]
-
-*/
 
 const FACTORIAL_U16: [u16; 9] = [1, 1, 2, 6, 24, 120, 720, 5040, 40320];
 
@@ -329,11 +323,11 @@ impl From<CornerSticker> for u8 {
 }
 
 impl CornerPermutation {
-    pub fn index(self) -> usize {
+    pub const fn index(self) -> usize {
         self as usize
     }
 
-    fn from_index(num: usize) -> CornerPermutation {
+    pub const fn from_index(num: usize) -> CornerPermutation {
         CornerPermutation::SOLVED[num]
     }
 }

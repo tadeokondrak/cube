@@ -18,7 +18,10 @@ mod xcenters;
 #[cfg(test)]
 mod tests;
 
-pub use corners::{CornerDirection, CornerOrientation, CornerPermutation, CornerSticker, Corners};
+pub use corners::{
+    fixed::{CornerPermutationFixed, CornersFixed},
+    CornerDirection, CornerOrientation, CornerPermutation, CornerSticker, Corners,
+};
 pub use edges::{EdgeDirection, EdgeOrientation, EdgePermutation, EdgeSticker, Edges};
 pub use obliques::{Obliques, ObliquesPair};
 pub use tcenters::TCenters;

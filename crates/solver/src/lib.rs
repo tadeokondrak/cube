@@ -1,9 +1,9 @@
-use cube::{Corners, Face};
+use cube::{CornersFixed, Face};
 use cube_notation::{Move, ParseMode, Token};
 use std::time::Instant;
 
 pub fn solve(scramble: &str, pruning: &[u8]) -> String {
-    let mut corners = Corners::new();
+    let mut corners = CornersFixed::new();
     if let Ok(tree) = cube_notation::parse_alg(2, ParseMode::Wca, scramble) {
         for mv in tree.to_canonical_moves() {
             assert_eq!(mv.start, 0);
@@ -18,15 +18,15 @@ pub fn solve(scramble: &str, pruning: &[u8]) -> String {
     alg
 }
 
-fn solve2(corners: Corners, pruning: &[u8]) -> Vec<Move> {
-    fn go(corners: Corners, moves: &mut Vec<Move>, pruning: &[u8]) -> bool {
+fn solve2(corners: CornersFixed, pruning: &[u8]) -> Vec<Move> {
+    fn go(corners: CornersFixed, moves: &mut Vec<Move>, pruning: &[u8]) -> bool {
         let old_index = corners.coordinate() as usize;
 
         if old_index == 0 {
             return true;
         }
 
-        for face in [Face::U, Face::R, Face::F, Face::L, Face::B, Face::D] {
+        for face in [Face::U, Face::F, Face::R] {
             if moves.last().is_some_and(|mv| mv.face == face) {
                 continue;
             }
@@ -68,16 +68,16 @@ fn solve2(corners: Corners, pruning: &[u8]) -> Vec<Move> {
 }
 
 pub fn make_pruning_table() -> Vec<u8> {
-    let mut table = vec![u8::MAX; Corners::NUM_COORDINATES as usize];
+    let mut table = vec![u8::MAX; CornersFixed::NUM_COORDINATES as usize];
     let mut depth = 0;
     let mut entries_filled = 1;
     table[0] = 0;
     let mut start = Instant::now();
     while entries_filled < table.len() {
-        for coord in 0..Corners::NUM_COORDINATES {
+        for coord in 0..CornersFixed::NUM_COORDINATES {
             if table[coord as usize] == depth {
-                let corners = Corners::from_coordinate(coord);
-                for face in Face::ALL {
+                let corners = CornersFixed::from_coordinate(coord);
+                for face in [Face::U, Face::F, Face::R] {
                     for count in 1..4 {
                         let mut corners = corners;
                         corners.rotate_face(face, count);
@@ -102,45 +102,40 @@ pub fn make_pruning_table() -> Vec<u8> {
 }
 
 pub fn get_pruning_table() -> Vec<u8> {
-    match std::fs::read("2x2pruning.bin") {
-        Ok(table) => table,
-        Err(_) => {
-            let table = make_pruning_table();
-            std::fs::write("2x2pruning.bin", &table).unwrap();
-            table
-        }
-    }
+    // TODO: use OnceLock
+    make_pruning_table()
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use cube::Cube;
+    use oorandom::Rand32;
 
     #[test]
-    #[ignore = "pruning table is slow to generate"]
     fn solve_yperm() {
         let pruning = get_pruning_table();
         let start = std::time::Instant::now();
         assert_eq!(
             solve("F R U' R' U' R U R' F' R U R' U' R' F R F'", &pruning),
-            "R U' R2 U' F' R' U F2 R U' F"
+            "F2 U' F U R U2 R U' R' F R'"
         );
         eprintln!("{:?}", start.elapsed());
     }
 
     #[test]
-    #[ignore = "pruning table is slow to generate"]
     fn solve_random_states() {
         let pruning = get_pruning_table();
         for i in 0..1024 {
             eprintln!("solved {i} cubes so far");
-            let mut cube = Cube::new_random(2, i);
-            for mov in solve2(cube.corners, &pruning) {
-                //eprintln!("{mov:?}");
-                cube.corners.rotate_face(mov.face, mov.count);
+            let mut rand = Rand32::new(i);
+            let mut corners =
+                CornersFixed::from_coordinate(rand.rand_range(0..CornersFixed::NUM_COORDINATES));
+            assert!(!corners.are_solved());
+            for mov in solve2(corners, &pruning) {
+                eprintln!("{mov:?}");
+                corners.rotate_face(mov.face, mov.count);
             }
-            assert!(cube.corners.are_solved());
+            assert!(corners.are_solved());
         }
     }
 }
