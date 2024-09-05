@@ -101,6 +101,50 @@ impl CornersFixed {
     }
 
     pub fn from_coordinates(permutation: u16, orientation: u16) -> CornersFixed {
+        fn decode_orientation(mut orientation: u16) -> [CornerOrientation; 7] {
+            let mut sum = CornerOrientation::Good;
+            let mut res = [CornerOrientation::Good; 7];
+            for co in res.iter_mut().take(6) {
+                *co = CornerOrientation::from_index(usize::from(orientation % 3));
+                sum += *co;
+                orientation /= 3;
+            }
+            res[6] = -sum;
+            res
+        }
+
+        fn decode_permutation(mut permutation: u16) -> [CornerPermutationFixed; 7] {
+            let mut res = [CornerPermutationFixed::Ubl; 7];
+
+            let mut used = [false; 7];
+            let mut order = [0; 7];
+
+            for i in 0..7 {
+                order[usize::from(i)] = permutation % (i + 1);
+                permutation /= i + 1;
+            }
+
+            for i in (0..7).rev() {
+                let mut k = 6;
+                while used[k] {
+                    k -= 1;
+                }
+                while order[i] > 0 {
+                    order[i] -= 1;
+                    loop {
+                        k -= 1;
+                        if !used[k] {
+                            break;
+                        }
+                    }
+                }
+                res[i] = CornerPermutationFixed::from_index(k);
+                used[k] = true;
+            }
+
+            res
+        }
+
         let permutation = decode_permutation(permutation);
         let orientation = decode_orientation(orientation);
         CornersFixed {
@@ -181,46 +225,99 @@ impl CornersFixed {
     }
 }
 
-fn decode_orientation(mut orientation: u16) -> [CornerOrientation; 7] {
-    let mut sum = CornerOrientation::Good;
-    let mut res = [CornerOrientation::Good; 7];
-    for co in res.iter_mut().take(6) {
-        *co = CornerOrientation::from_index(usize::from(orientation % 3));
-        sum += *co;
-        orientation /= 3;
-    }
-    res[6] = -sum;
-    res
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct CornerCoordsFixed {
+    pub permutation: u16,
+    pub orientation: u16,
 }
 
-fn decode_permutation(mut permutation: u16) -> [CornerPermutationFixed; 7] {
-    let mut res = [CornerPermutationFixed::Ubl; 7];
-
-    let mut used = [false; 7];
-    let mut order = [0; 7];
-
-    for i in 0..7 {
-        order[usize::from(i)] = permutation % (i + 1);
-        permutation /= i + 1;
+impl CornerCoordsFixed {
+    pub fn are_solved(&self) -> bool {
+        self.permutation == 0 && self.orientation == 0
     }
 
-    for i in (0..7).rev() {
-        let mut k = 6;
-        while used[k] {
-            k -= 1;
+    pub fn combined(&self) -> u32 {
+        u32::from(self.permutation)
+            * u32::from(CornersFixed::NUM_ORIENTATION_COORDINATES)
+            + u32::from(self.orientation)
+    }
+}
+
+impl From<CornerCoordsFixed> for CornersFixed {
+    fn from(corners: CornerCoordsFixed) -> CornersFixed {
+        CornersFixed::from_coordinates(corners.permutation, corners.orientation)
+    }
+}
+
+impl From<CornersFixed> for CornerCoordsFixed {
+    fn from(corners: CornersFixed) -> CornerCoordsFixed {
+        CornerCoordsFixed {
+            permutation: corners.permutation_coordinate(),
+            orientation: corners.orientation_coordinate(),
         }
-        while order[i] > 0 {
-            order[i] -= 1;
-            loop {
-                k -= 1;
-                if !used[k] {
-                    break;
+    }
+}
+
+#[derive(Debug, Clone, Copy)]
+pub struct CornerCoordsMoveTableFixed {
+    permutation: [[[u16; 3]; 3]; CornersFixed::NUM_PERMUTATION_COORDINATES as usize],
+    orientation: [[[u16; 3]; 3]; CornersFixed::NUM_ORIENTATION_COORDINATES as usize],
+}
+
+impl Default for CornerCoordsMoveTableFixed {
+    fn default() -> CornerCoordsMoveTableFixed {
+        CornerCoordsMoveTableFixed::new()
+    }
+}
+
+impl CornerCoordsMoveTableFixed {
+    pub fn new() -> CornerCoordsMoveTableFixed {
+        let mut permutation = [[[0; 3]; 3]; CornersFixed::NUM_PERMUTATION_COORDINATES as usize];
+        for permcoord in 0..CornersFixed::NUM_PERMUTATION_COORDINATES {
+            for (faceindex, face) in [Face::U, Face::F, Face::R].into_iter().enumerate() {
+                for count in 1..4 {
+                    let mut corners = CornersFixed::from_coordinates(permcoord, 0);
+                    corners.rotate_face(face, count);
+                    permutation[permcoord as usize][faceindex][count as usize - 1] =
+                        corners.permutation_coordinate();
                 }
             }
         }
-        res[i] = CornerPermutationFixed::from_index(k);
-        used[k] = true;
+        let mut orientation = [[[0; 3]; 3]; CornersFixed::NUM_ORIENTATION_COORDINATES as usize];
+        for oricoord in 0..CornersFixed::NUM_ORIENTATION_COORDINATES {
+            for (faceindex, face) in [Face::U, Face::F, Face::R].into_iter().enumerate() {
+                for count in 1..4 {
+                    let mut corners = CornersFixed::from_coordinates(0, oricoord);
+                    corners.rotate_face(face, count);
+                    orientation[oricoord as usize][faceindex][count as usize - 1] =
+                        corners.orientation_coordinate();
+                }
+            }
+        }
+        CornerCoordsMoveTableFixed {
+            permutation,
+            orientation,
+        }
     }
 
-    res
+    pub fn rotate_face(
+        &self,
+        corners: CornerCoordsFixed,
+        face: Face,
+        count: u8,
+    ) -> CornerCoordsFixed {
+        if count == 0 {
+            return corners
+        }
+        let faceindex = match face {
+            Face::U => 0,
+            Face::F => 1,
+            Face::R => 2,
+            Face::L | Face::B | Face::D => panic!(),
+        };
+        CornerCoordsFixed {
+            permutation: self.permutation[corners.permutation as usize][faceindex][count as usize % 4 - 1],
+            orientation: self.orientation[corners.orientation as usize][faceindex][count as usize % 4 - 1],
+        }
+    }
 }

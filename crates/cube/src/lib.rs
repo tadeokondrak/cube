@@ -19,7 +19,7 @@ mod xcenters;
 mod tests;
 
 pub use corners::{
-    fixed::{CornerPermutationFixed, CornersFixed},
+    fixed::{CornerCoordsFixed, CornerCoordsMoveTableFixed, CornerPermutationFixed, CornersFixed},
     CornerDirection, CornerOrientation, CornerPermutation, CornerSticker, Corners,
 };
 pub use edges::{EdgeDirection, EdgeOrientation, EdgePermutation, EdgeSticker, Edges};
