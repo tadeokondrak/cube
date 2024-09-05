@@ -3,7 +3,7 @@ use cube_notation::{Move, ParseMode, Token};
 
 pub fn solve(
     scramble: &str,
-    pruning: &impl PruningTable,
+    pruning: &PruningTables,
     moves: &CornerCoordsMoveTableFixed,
 ) -> String {
     let mut corners = CornersFixed::new();
@@ -23,13 +23,13 @@ pub fn solve(
 
 fn solve2(
     corners: CornerCoordsFixed,
-    pruning: &impl PruningTable,
+    pruning: &PruningTables,
     movetab: &CornerCoordsMoveTableFixed,
 ) -> Vec<Move> {
     fn go(
         corners: CornerCoordsFixed,
         moves: &mut Vec<Move>,
-        pruning: &impl PruningTable,
+        pruning: &PruningTables,
         moves_left: u8,
         movetab: &CornerCoordsMoveTableFixed,
     ) -> bool {
@@ -87,34 +87,20 @@ fn solve2(
     panic!("no solution found")
 }
 
-pub trait PruningTable {
-    fn check(&self, state: &CornerCoordsFixed, limit: u8) -> bool;
-}
-
-impl PruningTable for PruningTablesGood {
-    fn check(&self, state: &CornerCoordsFixed, limit: u8) -> bool {
-        self.table[state.combined() as usize] <= limit
-    }
-}
-
-impl PruningTable for PruningTablesFast {
+impl PruningTables {
     fn check(&self, state: &CornerCoordsFixed, limit: u8) -> bool {
         self.orientation[state.orientation as usize] <= limit
             && self.permutation[state.permutation as usize] <= limit
     }
 }
 
-pub struct PruningTablesGood {
-    table: Box<[u8; CornersFixed::NUM_COORDINATES as usize]>,
-}
-
-pub struct PruningTablesFast {
+pub struct PruningTables {
     permutation: Box<[u8; CornersFixed::NUM_PERMUTATION_COORDINATES as usize]>,
     orientation: Box<[u8; CornersFixed::NUM_ORIENTATION_COORDINATES as usize]>,
 }
 
-impl PruningTablesFast {
-    pub fn make() -> PruningTablesFast {
+impl PruningTables {
+    pub fn make() -> PruningTables {
         let mut permtab = vec![u8::MAX; CornersFixed::NUM_PERMUTATION_COORDINATES as usize];
         let mut depth = 0;
         let mut entries_filled = 1;
@@ -163,40 +149,9 @@ impl PruningTablesFast {
             depth += 1;
         }
 
-        PruningTablesFast {
+        PruningTables {
             permutation: permtab.into_boxed_slice().try_into().unwrap(),
             orientation: oritab.into_boxed_slice().try_into().unwrap(),
-        }
-    }
-}
-
-impl PruningTablesGood {
-    pub fn make() -> PruningTablesGood {
-        let mut table = vec![u8::MAX; CornersFixed::NUM_COORDINATES as usize];
-        let mut depth = 0;
-        let mut entries_filled = 1;
-        table[0] = 0;
-        while entries_filled < table.len() {
-            for coord in 0..CornersFixed::NUM_COORDINATES {
-                if table[coord as usize] == depth {
-                    let corners = CornersFixed::from_coordinate(coord);
-                    for face in [Face::U, Face::F, Face::R] {
-                        for count in 1..4 {
-                            let mut corners = corners;
-                            corners.rotate_face(face, count);
-                            let new_coord = corners.coordinate();
-                            if table[new_coord as usize] == u8::MAX {
-                                table[new_coord as usize] = depth + 1;
-                                entries_filled += 1;
-                            }
-                        }
-                    }
-                }
-            }
-            depth += 1;
-        }
-        PruningTablesGood {
-            table: table.into_boxed_slice().try_into().unwrap(),
         }
     }
 }
@@ -208,7 +163,7 @@ mod tests {
 
     #[test]
     fn solve_yperm() {
-        let pruning = PruningTablesFast::make();
+        let pruning = PruningTables::make();
         let start = std::time::Instant::now();
         assert_eq!(
             solve(
@@ -224,7 +179,7 @@ mod tests {
     #[test]
     fn solve_random_states() {
         let start = std::time::Instant::now();
-        let pruning = PruningTablesFast::make();
+        let pruning = PruningTables::make();
         eprintln!("pruning table {:?}", start.elapsed());
         let start = std::time::Instant::now();
         let movetab = CornerCoordsMoveTableFixed::new();
