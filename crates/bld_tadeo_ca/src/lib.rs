@@ -1,7 +1,10 @@
+#![no_std]
+extern crate alloc;
+
 use cube::{CornerSticker, Cube, EdgeOrientation, EdgeSticker, Face, WingSticker};
 use cube_bld::{memo, memo_centers, Pieces, Sticker};
 use cube_notation::ParseMode;
-use std::{collections::HashMap, fmt::Write};
+use alloc::{collections::BTreeMap as Map, fmt::Write, format, string::String, vec::Vec};
 use wasm_bindgen::prelude::*;
 
 #[cfg(test)]
@@ -104,13 +107,13 @@ pub fn memorize(
     let mut cube = Cube::new_solved(n);
     apply_alg(&mut cube, scramble);
 
-    let lettering = lettering.chars().enumerate().collect::<HashMap<_, _>>();
+    let lettering = lettering.chars().enumerate().collect::<Map<_, _>>();
 
     let mut s = String::new();
 
     fn write_spaced(
         out: &mut String,
-        lettering: &HashMap<usize, char>,
+        lettering: &Map<usize, char>,
         iter: impl Iterator<Item = usize>,
     ) {
         for (i, letter) in iter.enumerate() {
@@ -123,7 +126,7 @@ pub fn memorize(
 
     fn write_unspaced(
         out: &mut String,
-        lettering: &HashMap<usize, char>,
+        lettering: &Map<usize, char>,
         iter: impl Iterator<Item = usize>,
     ) {
         out.extend(iter.into_iter().map(|letter| (lettering[&letter])));
