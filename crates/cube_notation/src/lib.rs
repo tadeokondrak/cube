@@ -623,7 +623,7 @@ pub enum ParseMode {
     Wca,
 }
 
-pub fn parse_alg(n: u16, _mode: ParseMode, text: &str) -> Result<Tree, &'static str> {
+pub fn parse_alg(n: u16, ParseMode::Wca: ParseMode, text: &str) -> Result<Tree, &'static str> {
     let mut i = 0;
     let mut tokens = Vec::new();
     while i < text.len() {

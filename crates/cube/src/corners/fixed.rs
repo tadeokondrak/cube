@@ -307,7 +307,7 @@ impl CornerCoordsMoveTableFixed {
         count: u8,
     ) -> CornerCoordsFixed {
         if count == 0 {
-            return corners
+            return corners;
         }
         let faceindex = match face {
             Face::U => 0,
