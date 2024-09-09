@@ -143,7 +143,8 @@ fn main() -> Result<()> {
     }
 
     for (category_name, cases) in map {
-        let mut writer = std::fs::File::create(format!("{}.json", category_name)).unwrap();
+        std::fs::create_dir_all("out")?;
+        let mut writer = std::fs::File::create(format!("out/{}.json", category_name)).unwrap();
         let mut out = String::new();
         {
             let mut source_cache: Vec<Arc<Source>> = Vec::new();
@@ -311,7 +312,7 @@ fn make_blddb_iter(
                             let context = Context::full(&runtime).unwrap();
                             context
                                 .with(|ctx| {
-                                    let Undefined = ctx
+                                    Undefined = ctx
                                         .eval(include_bytes!("commutator.js").as_slice())
                                         .catch(&ctx)
                                         .map_err(|e| anyhow::format_err!("{e:?}"))?;
