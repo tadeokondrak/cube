@@ -1,0 +1,12 @@
+[package]
+name = "cube_scramblers"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+cube = { version = "0.0.0", path = "../cube" }
+cube_notation = { version = "0.1.0", path = "../cube_notation" }
+oorandom = "11.1.4"
+
+[dev-dependencies]
+expect-test = "1.5.0"

@@ -1,35 +1,15 @@
 use cube::{CornerCoordsFixed, CornerCoordsMoveTableFixed, CornersFixed, Face};
-use cube_notation::{Move, ParseMode, Token};
+use cube_notation::Move;
 
-pub fn solve(
-    scramble: &str,
-    pruning: &PruningTables,
-    moves: &CornerCoordsMoveTableFixed,
-) -> String {
-    let mut corners = CornersFixed::new();
-    if let Ok(tree) = cube_notation::parse_alg(2, ParseMode::Wca, scramble) {
-        for mv in tree.to_canonical_moves() {
-            assert_eq!(mv.start, 0);
-            assert_eq!(mv.end, 1);
-            corners.rotate_face(mv.face, mv.count)
-        }
-    }
-    let moves = solve2(corners.into(), pruning, moves);
-    let tokens = moves.iter().copied().map(Token::Move).collect::<Vec<_>>();
-    let mut alg = String::new();
-    cube_notation::format_tokens(&mut alg, &tokens).unwrap();
-    alg
-}
-
-fn solve2(
+pub fn solve_state(
     corners: CornerCoordsFixed,
-    pruning: &PruningTables,
+    pruntab: &PruningTables,
     movetab: &CornerCoordsMoveTableFixed,
 ) -> Vec<Move> {
     fn go(
         corners: CornerCoordsFixed,
         moves: &mut Vec<Move>,
-        pruning: &PruningTables,
+        pruntab: &PruningTables,
         moves_left: u8,
         movetab: &CornerCoordsMoveTableFixed,
     ) -> bool {
@@ -51,7 +31,7 @@ fn solve2(
             for count in 1..4 {
                 let new_corners = movetab.rotate_face(corners, face, count);
 
-                if !pruning.check(&new_corners, moves_left) {
+                if !pruntab.check(&new_corners, moves_left) {
                     continue;
                 }
 
@@ -63,7 +43,7 @@ fn solve2(
                     count,
                 });
 
-                if go(new_corners, moves, pruning, moves_left - 1, movetab) {
+                if go(new_corners, moves, pruntab, moves_left - 1, movetab) {
                     return true;
                 } else {
                     moves.pop();
@@ -76,22 +56,15 @@ fn solve2(
 
     let mut moves = Vec::new();
     for limit in 0..=11 {
-        if !pruning.check(&corners, limit) {
+        if !pruntab.check(&corners, limit) {
             continue;
         }
 
-        if go(corners, &mut moves, pruning, limit, movetab) {
+        if go(corners, &mut moves, pruntab, limit, movetab) {
             return moves;
         }
     }
     panic!("no solution found")
-}
-
-impl PruningTables {
-    fn check(&self, state: &CornerCoordsFixed, limit: u8) -> bool {
-        self.orientation[state.orientation as usize] <= limit
-            && self.permutation[state.permutation as usize] <= limit
-    }
 }
 
 pub struct PruningTables {
@@ -154,56 +127,9 @@ impl PruningTables {
             orientation: oritab.into_boxed_slice().try_into().unwrap(),
         }
     }
-}
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use oorandom::Rand32;
-
-    #[test]
-    fn solve_yperm() {
-        let pruning = PruningTables::make();
-        let start = std::time::Instant::now();
-        assert_eq!(
-            solve(
-                "F R U' R' U' R U R' F' R U R' U' R' F R F'",
-                &pruning,
-                &CornerCoordsMoveTableFixed::new()
-            ),
-            "R U' R2 U' F' R' U F2 R U' F"
-        );
-        eprintln!("{:?}", start.elapsed());
-    }
-
-    #[test]
-    fn solve_random_states() {
-        let start = std::time::Instant::now();
-        let pruning = PruningTables::make();
-        eprintln!("pruning table {:?}", start.elapsed());
-        let start = std::time::Instant::now();
-        let movetab = CornerCoordsMoveTableFixed::new();
-        eprintln!("move table {:?}", start.elapsed());
-        let start = std::time::Instant::now();
-        let mut total = 0;
-        for i in 0..1024 {
-            //eprintln!("solved {i} cubes so far");
-            let mut rand = Rand32::new(i);
-            let mut corners =
-                CornersFixed::from_coordinate(rand.rand_range(0..CornersFixed::NUM_COORDINATES));
-            assert!(!corners.are_solved());
-            for mov in solve2(corners.into(), &pruning, &movetab) {
-                //eprint!("{mov:?} ");
-                corners.rotate_face(mov.face, mov.count);
-                total += 1;
-            }
-            //eprintln!();
-            assert!(corners.are_solved());
-        }
-        eprintln!(
-            "solves {:?} in an average of {} moves",
-            start.elapsed(),
-            total as f32 / 1024.0
-        );
+    fn check(&self, state: &CornerCoordsFixed, limit: u8) -> bool {
+        self.orientation[state.orientation as usize] <= limit
+            && self.permutation[state.permutation as usize] <= limit
     }
 }

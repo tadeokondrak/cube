@@ -43,9 +43,9 @@ impl Move {
 }
 
 #[derive(Debug)]
-struct Canceler {
-    moves: Vec<Move>,
-    orientation: EdgeSticker,
+pub struct Canceler {
+    pub moves: Vec<Move>,
+    pub orientation: EdgeSticker,
 }
 
 impl Canceler {
@@ -99,7 +99,7 @@ impl Canceler {
         self.cancel(mv);
     }
 
-    fn cancel(&mut self, mv: Move) {
+    pub fn cancel(&mut self, mv: Move) {
         if mv.start == 0 && mv.end == mv.n {
             let (axis, invert) = match mv.face {
                 Face::R => (Axis::X, false),
@@ -164,7 +164,7 @@ impl Canceler {
         self.cancel_at(0);
     }
 
-    fn new() -> Canceler {
+    pub fn new() -> Canceler {
         Canceler {
             moves: Vec::new(),
             orientation: EdgeSticker::Uf,
@@ -199,7 +199,7 @@ pub enum Tree {
 
 impl Display for Tree {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        format_tokens(f, &self.to_tokens())
+        format_tokens(f, self.to_tokens())
     }
 }
 
@@ -558,9 +558,12 @@ pub fn format_move<W: fmt::Write>(mut out: W, mut mv: Move) -> fmt::Result {
     Ok(())
 }
 
-pub fn format_tokens<W: fmt::Write>(mut out: W, tokens: &[Token]) -> fmt::Result {
+pub fn format_tokens<W: fmt::Write>(
+    mut out: W,
+    tokens: impl IntoIterator<Item = Token>,
+) -> fmt::Result {
     let mut want_space = false;
-    for &token in tokens {
+    for token in tokens {
         match token {
             Token::LBracket => {
                 if want_space {
@@ -904,7 +907,7 @@ pub fn format_moves(standard_moves: &[Move]) -> String {
         .copied()
         .map(Token::Move)
         .collect::<Vec<_>>();
-    format_tokens(&mut s, &tokens).unwrap();
+    format_tokens(&mut s, tokens).unwrap();
     s
 }
 
@@ -959,9 +962,9 @@ pub fn canonicalize(moves: &[Move]) -> Vec<Move> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use alloc::{collections::BTreeSet, format};
     use cube::{Cube, RotatedCube};
     use expect_test::{expect, Expect};
-    use alloc::{collections::BTreeSet, format};
 
     #[test]
     fn parse() {
@@ -1023,7 +1026,7 @@ mod tests {
             let standard_moves = tree.to_moves();
 
             let mut s = String::new();
-            format_tokens(&mut s, &tokens).unwrap();
+            format_tokens(&mut s, tokens).unwrap();
             expected_formatted.assert_eq(&s);
 
             let standard_formatted = format_moves(&standard_moves);
