@@ -1,8 +1,15 @@
-use cube::{map_orientation, rotate_face, Axis, Cube, EdgeSticker, Face, RotatedCube};
-use std::{
+#![no_std]
+extern crate alloc;
+
+use alloc::{
+    boxed::Box,
     fmt::{self, Display},
-    mem::swap,
+    string::String,
+    vec,
+    vec::Vec,
 };
+use core::mem::swap;
+use cube::{map_orientation, rotate_face, Axis, Cube, EdgeSticker, Face, RotatedCube};
 
 #[derive(Clone, Copy, PartialEq, Eq, Hash)]
 pub struct Move {
@@ -954,7 +961,7 @@ mod tests {
     use super::*;
     use cube::{Cube, RotatedCube};
     use expect_test::{expect, Expect};
-    use std::collections::HashSet;
+    use alloc::{collections::BTreeSet, format};
 
     #[test]
     fn parse() {
@@ -1649,7 +1656,7 @@ mod tests {
                         .to_canonical_moves()
                 })
                 .map(|moves| format_moves(&moves))
-                .collect::<HashSet<_>>();
+                .collect::<BTreeSet<_>>();
             assert_eq!(canonicalized.len(), 1, "{canonicalized:?}");
             expected.assert_eq(&canonicalized.into_iter().next().unwrap());
         }
