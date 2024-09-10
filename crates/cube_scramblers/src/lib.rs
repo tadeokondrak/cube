@@ -1,3 +1,10 @@
+#![no_std]
+
+extern crate alloc;
+#[cfg(test)]
+extern crate std;
+
+use alloc::string::String;
 use cube::{CornerCoordsMoveTableFixed, Corners, CornersFixed, Face};
 use cube_notation::{format_moves, Canceler, Move};
 use oorandom::Rand32;
@@ -45,7 +52,10 @@ mod tests {
 
     #[test]
     fn random_state_222() {
-        expect!["U R2 F U2 F R' U2 F R U"].assert_eq(&scramble_222_random_state(0));
+        let start = std::time::Instant::now();
+        let scramble = scramble_222_random_state(0);
+        std::eprintln!("{:?}", start.elapsed());
+        expect!["U R2 F U2 F R' U2 F R U"].assert_eq(&scramble);
     }
 
     #[test]

@@ -1,5 +1,6 @@
 use cube::{CornerCoordsFixed, CornerCoordsMoveTableFixed, CornersFixed, Face};
 use cube_notation::Move;
+use alloc::{vec::Vec, vec, boxed::Box};
 
 pub fn solve_state(
     corners: CornerCoordsFixed,
