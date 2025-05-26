@@ -1609,14 +1609,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "misc"
-version = "0.1.0"
-dependencies = [
- "cube",
- "cube_bld",
-]
-
-[[package]]
 name = "naga"
 version = "22.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
