@@ -12,7 +12,7 @@ mod tests;
 
 fn ordinal_suffix(n: usize) -> &'static str {
     match (n % 10, n % 100) {
-        (_, 11 | 12 | 13) => "th",
+        (_, 11..=13) => "th",
         (1, _) => "st",
         (2, _) => "nd",
         (3, _) => "rd",

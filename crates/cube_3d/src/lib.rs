@@ -83,12 +83,12 @@ pub fn set_up_facelets(n: u16, vertices: &mut [Vec3], indices: &mut [u32]) {
                 ]);
 
                 indices[index_index..index_index + 6].copy_from_slice(&[
-                    vertex_index as u32 + 0,
+                    vertex_index as u32 ,
                     vertex_index as u32 + 1,
                     vertex_index as u32 + 2,
                     vertex_index as u32 + 2,
                     vertex_index as u32 + 3,
-                    vertex_index as u32 + 0,
+                    vertex_index as u32 ,
                 ]);
 
                 vertex_index += 4;

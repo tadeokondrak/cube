@@ -128,16 +128,16 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
 
     set_up_facelets(
         n,
-        cast_slice_mut(&mut *vertex_buffer.slice(..).get_mapped_range_mut()),
-        cast_slice_mut(&mut *index_buffer.slice(..).get_mapped_range_mut()),
+        cast_slice_mut(&mut vertex_buffer.slice(..).get_mapped_range_mut()),
+        cast_slice_mut(&mut index_buffer.slice(..).get_mapped_range_mut()),
     );
 
     let mut cube = Cube::new_random(n, 0);
     let mut cube = RotatedCube::new(&mut cube);
     let mut layers = 2;
     update_facelet_colors(
-        &cube.cube,
-        cast_slice_mut(&mut *color_buffer.slice(..).get_mapped_range_mut()),
+        cube.cube,
+        cast_slice_mut(&mut color_buffer.slice(..).get_mapped_range_mut()),
     );
 
     vertex_buffer.unmap();
@@ -309,11 +309,11 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
                             let v = Mat4::look_at_lh(vec3(0.0, 5.0, -5.0), Vec3::ZERO, Vec3::Y);
                             let m = Mat4::from_scale(3.0 * Vec3::ONE) * Mat4::from_quat(quat);
                             let mvp = p * v * m;
-                            queue.write_buffer(&uniform_buffer, 0, &bytes_of(&mvp));
+                            queue.write_buffer(&uniform_buffer, 0, bytes_of(&mvp));
                             let mut buf =
                                 vec![Vec4::ZERO; num_facelets * cube_3d::VERTICES_PER_FACELET];
-                            update_facelet_colors(&cube.cube, &mut buf);
-                            queue.write_buffer(&color_buffer, 0, &cast_slice(&buf));
+                            update_facelet_colors(cube.cube, &mut buf);
+                            queue.write_buffer(&color_buffer, 0, cast_slice(&buf));
 
                             let frame = surface
                                 .get_current_texture()

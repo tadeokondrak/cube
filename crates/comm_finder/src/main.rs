@@ -47,32 +47,29 @@ fn get_url(path: &str, url: &str) -> anyhow::Result<PathBuf> {
 fn main() -> Result<()> {
     let mut sheets_csv = csv::Reader::from_path("data/google.csv")?;
     let google_sheets = sheets_csv.deserialize::<(String, String)>().map(|res| {
-        res.map_err(|e| anyhow::Error::from(e))
-            .and_then(|(name, key)| {
-                let url =
-                    format!("https://docs.google.com/spreadsheets/d/{key}/export?format=xlsx");
-                Ok((url, key, name))
-            })
+        res.map_err(anyhow::Error::from).map(|(name, key)| {
+            let url = format!("https://docs.google.com/spreadsheets/d/{key}/export?format=xlsx");
+            (url, key, name)
+        })
     });
 
     let mut excel_csv = csv::Reader::from_path("data/excel.csv")?;
     let excel_sheets = excel_csv
         .deserialize::<(String, String, String)>()
         .map(|res| {
-            res.map_err(|e| anyhow::Error::from(e))
-                .and_then(|(name, key, url)| Ok((url, key, name)))
+            res.map_err(anyhow::Error::from)
+                .map(|(name, key, url)| (url, key, name))
         });
 
     let mut blddb_csv = csv::Reader::from_path("data/blddb.csv")?;
     let blddb_files = blddb_csv
         .deserialize::<(String, String)>()
         .map(|res| {
-            res.map_err(|e| anyhow::Error::from(e))
-                .and_then(|(key, url)| {
-                    let path = format!("blddb_{key}.json");
-                    let loc = get_url(&path, &url)?;
-                    Ok((url, loc, key))
-                })
+            res.map_err(anyhow::Error::from).and_then(|(key, url)| {
+                let path = format!("blddb_{key}.json");
+                let loc = get_url(&path, &url)?;
+                Ok((url, loc, key))
+            })
         })
         .collect::<anyhow::Result<Vec<(String, PathBuf, String)>>>()?;
 
@@ -80,7 +77,7 @@ fn main() -> Result<()> {
     let simple_files = simple_csv
         .deserialize::<(String, String, String)>()
         .map(|res| {
-            res.map_err(|e| anyhow::Error::from(e))
+            res.map_err(anyhow::Error::from)
                 .and_then(|(name, key, url)| {
                     let path = format!("{key}.txt");
                     let loc = get_url(&path, &url)?;
@@ -154,9 +151,9 @@ fn main() -> Result<()> {
                 let mut obj = obj.object(&case.to_string());
                 {
                     for (canonical, variants) in canonicals {
-                        let mut obj = obj.object(&format!("{canonical}"));
+                        let mut obj = obj.object(&canonical);
                         for (variant, mut sources) in variants {
-                            let mut arr = obj.array(&format!("{variant}"));
+                            let mut arr = obj.array(&variant);
                             sources.sort();
                             sources.dedup();
                             for source in sources {
@@ -263,7 +260,7 @@ fn make_sheets_iter(
             progress.add(
                 ProgressBar::new(len)
                     .with_style(ProgressStyle::with_template("{bar} {pos}/{len} {msg}").unwrap())
-                    .with_message(format!("Spreadsheets")),
+                    .with_message("Spreadsheets"),
             ),
         )
 }
@@ -324,11 +321,9 @@ fn make_blddb_iter(
                         |(_runtime, context), alg| {
                             let converted_alg = context
                                 .with(|ctx| {
-                                    Ok::<String, rquickjs::Error>(
-                                        ctx.globals()
-                                            .get::<_, rquickjs::Function>("commutator")?
-                                            .call((&alg,))?,
-                                    )
+                                    ctx.globals()
+                                        .get::<_, rquickjs::Function>("commutator")?
+                                        .call((&alg,))
                                 })
                                 .unwrap();
 
@@ -353,7 +348,7 @@ fn make_blddb_iter(
             progress.add(
                 ProgressBar::new(len)
                     .with_style(ProgressStyle::with_template("{bar} {pos}/{len} {msg}").unwrap())
-                    .with_message(format!("BLDDB")),
+                    .with_message("BLDDB"),
             ),
         )
 }
@@ -381,7 +376,7 @@ fn make_text_iter(
             progress.add(
                 ProgressBar::new(len)
                     .with_style(ProgressStyle::with_template("{bar} {pos}/{len} {msg}").unwrap())
-                    .with_message(format!("Text files")),
+                    .with_message("Text files"),
             ),
         )
 }
