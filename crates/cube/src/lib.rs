@@ -1,19 +1,30 @@
+//! This crate contains abstractions for Rubik's cube state.
+//!
+//! It provides composable helpers for the states of mostly-independent
+//! components like the [`Corners`] and [`Edges`] of a 3x3x3 cube.
+//!
+//! It also provides types to describe other parts of the cube, like [`Axis`],
+//! [`Face`] and [`EdgeSticker`].
+//!
+//! All of this is combined in the [`Cube`] and [`RotatedCube`] abstractions,
+//! which describe the state of an NxNxN Rubik's cube with and without keeping
+//! track of its orientation, respectively.
+//!
+//! Note: Most of the abstractions in this crate are not meant to be extremely
+//! fast, yet. See [`corners::fixed`] for some preliminary work in this respect.
+
 #![no_std]
 extern crate alloc;
 #[cfg(test)]
 extern crate std;
 
-use alloc::{format, string::String, vec, vec::Vec};
-use core::{cmp::Ordering, fmt::Debug, ops::Range};
-use oorandom::Rand32;
-
-mod corners;
-mod edges;
-mod obliques;
-mod tables;
-mod tcenters;
-mod wings;
-mod xcenters;
+pub mod corners;
+pub mod edges;
+pub mod obliques;
+pub mod tables;
+pub mod tcenters;
+pub mod wings;
+pub mod xcenters;
 
 #[cfg(test)]
 mod tests;
@@ -27,6 +38,10 @@ pub use obliques::{Obliques, ObliquesPair};
 pub use tcenters::TCenters;
 pub use wings::{WingSticker, Wings};
 pub use xcenters::XCenters;
+
+use alloc::{format, string::String, vec, vec::Vec};
+use core::{cmp::Ordering, fmt::Debug, ops::Range};
+use oorandom::Rand32;
 
 #[repr(u8)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -657,43 +672,6 @@ impl core::fmt::Debug for Cube {
             }
         }
         Ok(())
-        //        let height = 3 * usize::from(self.n);
-        //        let width = 4 * usize::from(self.n);
-        //        let mut grid = vec![' '; width * height];
-        //
-        //        let face_offsets = [(1, 0), (0, 1), (1, 1), (2, 1), (3, 1), (1, 2)];
-        //
-        //        for face_index in 0..6 {
-        //            let face = Face::from_index(face_index);
-        //            let (x_offset, y_offset) = face_offsets[usize::from(face_index)];
-        //            for x in 0..self.n {
-        //                for y in 0..self.n {
-        //                    let adj_x = x as i16 - self.n as i16 / 2;
-        //                    let adj_y = -(y as i16 - self.n as i16 / 2);
-        //                    let color = self.color_at(face, adj_x, adj_y);
-        //                    let c = format!("{color:?}").chars().nth(0).unwrap();
-        //                    grid[((y_offset * usize::from(self.n) + usize::from(y)) * width)
-        //                        + x_offset * usize::from(self.n)
-        //                        + usize::from(x)] = c;
-        //                }
-        //            }
-        //        }
-        //
-        //        for y in 0..height {
-        //            for x in 0..width {
-        //                let c = grid[y * width + x];
-        //                if c == ' ' && x > self.n as usize {
-        //                    continue;
-        //                }
-        //
-        //                f.write_char(c)?;
-        //            }
-        //            if y != height - 1 {
-        //                f.write_char('\n')?;
-        //            }
-        //        }
-        //
-        //        Ok(())
     }
 }
 
