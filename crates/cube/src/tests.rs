@@ -1,4 +1,8 @@
-use super::*;
+use crate::{
+    orientation_after_move, rotate_face, AnySticker, Axis, CornerSticker, Cube, EdgeSticker, Face,
+    RotatedCube, WingSticker,
+};
+use alloc::{format, string::String};
 use expect_test::{expect, expect_file, Expect, ExpectFile};
 use std::fmt::Write;
 
