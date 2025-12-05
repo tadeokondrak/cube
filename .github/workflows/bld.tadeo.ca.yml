@@ -32,7 +32,7 @@ jobs:
           version: v0.12.1
       - run: wasm-pack build crates/bld_tadeo_ca --target web --release
       - run: mkdir out && cp -r crates/bld_tadeo_ca/{index.html,main.js,pkg} out
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v4
         with:
           path: "out"
       - id: deployment
