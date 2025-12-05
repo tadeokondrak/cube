@@ -9,7 +9,7 @@ use reqwest::blocking::Client;
 use rquickjs::{CatchResultExt, Context, Runtime, Undefined};
 use std::{
     collections::BTreeMap,
-    fmt::Display,
+    fmt::{Display, Write as _},
     fs,
     io::{self, BufRead, BufReader, Write},
     path::PathBuf,
@@ -45,6 +45,7 @@ fn get_url(path: &str, url: &str) -> anyhow::Result<PathBuf> {
 }
 
 fn main() -> Result<()> {
+    let mut errors = String::new();
     let mut sheets_csv = csv::Reader::from_path("data/google.csv")?;
     let google_sheets = sheets_csv.deserialize::<(String, String)>().map(|res| {
         res.map_err(anyhow::Error::from).map(|(name, key)| {
@@ -101,7 +102,7 @@ fn main() -> Result<()> {
 
     let count = (all_sheets.len() + simple_files.len() + blddb_files.len()) as u64;
 
-    let mut all_algs = make_sheets_iter(all_sheets, progress.clone())
+    let all_alg_results = make_sheets_iter(all_sheets, progress.clone())
         .chain(make_blddb_iter(blddb_files, progress.clone()))
         .chain(make_text_iter(simple_files, progress.clone()))
         .progress_with(
@@ -115,7 +116,15 @@ fn main() -> Result<()> {
             Ok(vec) => vec.into_iter().map(Ok).collect(),
             Err(e) => vec![Err(e)],
         })
-        .collect::<Result<Vec<(Case, String, Arc<Source>)>>>()?;
+        .collect::<Vec<Result<(Case, String, Arc<Source>)>>>();
+
+    let mut all_algs = Vec::new();
+    for result in all_alg_results {
+        match result {
+            Ok(alg) => all_algs.push(alg),
+            Err(e) => writeln!(&mut errors, "{e}")?,
+        }
+    }
 
     all_algs.sort();
     all_algs.dedup();
@@ -196,6 +205,12 @@ fn main() -> Result<()> {
         }
         out.push('\n');
         writer.write_all(out.as_bytes()).unwrap();
+    }
+
+    drop(progress);
+
+    if !errors.is_empty() {
+        eprintln!("Errors:\n{errors}");
     }
 
     Ok(())
