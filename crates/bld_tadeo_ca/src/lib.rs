@@ -129,7 +129,7 @@ pub fn memorize(
         lettering: &Map<usize, char>,
         iter: impl Iterator<Item = usize>,
     ) {
-        out.extend(iter.into_iter().map(|letter| (lettering[&letter])));
+        out.extend(iter.into_iter().map(|letter| lettering[&letter]));
     }
 
     if n % 2 != 0 {
